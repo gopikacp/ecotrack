@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Saved Ideas - EcoTrack</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .saved-container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .empty-state img {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .ideas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        .idea-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+        .idea-card:hover {
+            transform: translateY(-5px);
+        }
+        .idea-image {
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            background-color: #4ecdc4;
+        }
+        .difficulty-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 15px;
+            border-radius: 20px;
+            color: white;
+            font-size: 12px;
+            background: #4ecdc4;
+        }
+        .difficulty-badge.easy { background: #4caf50; }
+        .difficulty-badge.medium { background: #ff9800; }
+        .difficulty-badge.hard { background: #f44336; }
+        .idea-content {
+            padding: 20px;
+        }
+        .save-btn {
+            background: none;
+            border: 2px solid #4ecdc4;
+            color: #4ecdc4;
+            padding: 8px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .save-btn:hover {
+            background: #4ecdc4;
+            color: white;
+        }
+        .btn.user {
+            background: #4ecdc4;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        .btn.user:hover {
+            background: #2e7d32;
+        }
+    </style>
+</head>
+<body>
+    <div class="user-nav">
+        <h2 onclick="location.href='user.html'" style="cursor: pointer;">♻️ EcoTrack</h2>
+        <div class="nav-links">
+            <a href="user.html">Dashboard</a>
+            <a href="reuse-ideas.html">Browse Ideas</a>
+            <a href="index.html" onclick="return confirm('Logout?')">Logout</a>
+        </div>
+    </div>
+
+    <div class="saved-container">
+        <h2>❤️ Saved Ideas</h2>
+        <div id="savedIdeasGrid" class="ideas-grid">
+            <!-- Will be filled by JavaScript -->
+        </div>
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <img src="https://via.placeholder.com/200x200/4ecdc4/ffffff?text=No+Saved+Ideas" alt="No saved ideas">
+            <h3>No saved ideas yet</h3>
+            <p>Browse reuse ideas and save your favorites!</p>
+            <button class="btn user" onclick="location.href='reuse-ideas.html'">Explore Ideas</button>
+        </div>
+    </div>
+
+    <script>
+        function loadSavedIdeas() {
+            let savedIds = JSON.parse(localStorage.getItem('savedIdeas')) || [];
+            let grid = document.getElementById('savedIdeasGrid');
+            let empty = document.getElementById('emptyState');
+            
+            if(savedIds.length === 0) {
+                grid.style.display = 'none';
+                empty.style.display = 'block';
+                return;
+            }
+            
+            grid.style.display = 'grid';
+            empty.style.display = 'none';
+            
+            let html = '';
+            savedIds.forEach(id => {
+                let title = getIdeaTitle(id);
+                let imageUrl = getIdeaImage(id);
+                
+                html += `
+                    <div class="idea-card" onclick="location.href='reuse-detail.html?id=${id}'">
+                        <div class="idea-image" style="background-image: url('${imageUrl}')">
+                            <span class="difficulty-badge easy">Saved</span>
+                        </div>
+                        <div class="idea-content">
+                            <h3>${title}</h3>
+                            <button class="save-btn" onclick="event.stopPropagation(); removeIdea(${id})">Remove</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            grid.innerHTML = html;
+        }
+
+        function getIdeaTitle(id) {
+            const titles = {
+                1: "Plastic Bottle → Vertical Garden",
+                2: "Newspaper → Eco-friendly Bags",
+                3: "Glass Bottle → Decorative Lamp",
+                4: "Old T-shirt → Tote Bag",
+                5: "Egg Cartons → Seed Starters",
+                6: "Old Keyboard → Wall Clock",
+                7: "Wooden Pallets → Coffee Table",
+                8: "Plastic Bottle → Pen Stand"
+            };
+            return titles[id] || `Idea #${id}`;
+        }
+
+        function getIdeaImage(id) {
+            const images = {
+                1: "https://via.placeholder.com/300x200/4ecdc4/ffffff?text=Plastic+Bottle+Garden",
+                2: "https://via.placeholder.com/300x200/4ecdc4/ffffff?text=Newspaper+Bags",
+                3: "https://via.placeholder.com/300x200/4ecdc4/ffffff?text=Glass+Lamp",
+                4: "https://via.placeholder.com/300x200/4ecdc4/ffffff?text=T-shirt+Bag",
+                5: "https://via.placeholder.com/300x200/4ecdc4/ffffff?text=Egg+Cartons",
+                6: "https://via.placeholder.com/300x200/4ecdc4/ffffff?text=Keyboard+Clock",
+                7: "https://via.placeholder.com/300x200/4ecdc4/ffffff?text=Wooden+Table",
+                8: "https://via.placeholder.com/300x200/4ecdc4/ffffff?text=Pen+Stand"
+            };
+            return images[id] || "https://via.placeholder.com/300x200/4ecdc4/ffffff?text=Saved+Idea";
+        }
+
+        function removeIdea(id) {
+            let saved = JSON.parse(localStorage.getItem('savedIdeas')) || [];
+            saved = saved.filter(i => i != id);
+            localStorage.setItem('savedIdeas', JSON.stringify(saved));
+            alert('Removed from saved');
+            loadSavedIdeas();
+        }
+
+        window.onload = loadSavedIdeas;
+    </script>
+</body>
+</html>

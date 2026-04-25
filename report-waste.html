@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Add this at the top of every page -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <title>Report Waste - EcoTrack</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background: #f5f5f5; }
+        .nav { background: #4ecdc4; color: white; padding: 15px 20px; display: flex; justify-content: space-between; }
+        .nav a { color: white; text-decoration: none; margin-left: 15px; }
+        .container { max-width: 600px; margin: 30px auto; padding: 20px; background: white; border-radius: 10px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;
+        }
+        button { background: #4ecdc4; color: white; border: none; padding: 12px; border-radius: 5px; cursor: pointer; width: 100%; }
+        .location-btn { background: #2196f3; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <h2 onclick="location.href='user-dashboard.html'">♻️ EcoTrack</h2>
+        <div>
+            <a href="user-dashboard.html">Dashboard</a>
+            <a href="report-waste.html">Report</a>
+            <a href="reuse-ideas.html">Reuse</a>
+            <a href="rewards.html">Rewards</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>📸 Report Waste</h2>
+        <p>Earn 10 Green Points for each report!</p>
+
+        <button class="location-btn" onclick="getLocation()">📍 Get My Location</button>
+        <p id="locationStatus"></p>
+
+        <form id="reportForm">
+            <div class="form-group">
+                <label>Waste Type</label>
+                <select id="wasteType" required>
+                    <option value="">Select type</option>
+                    <option value="Plastic">Plastic</option>
+                    <option value="Paper">Paper</option>
+                    <option value="Glass">Glass</option>
+                    <option value="E-Waste">E-Waste</option>
+                    <option value="Organic">Organic</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Location</label>
+                <input type="text" id="location" placeholder="Enter location" required>
+            </div>
+
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="description" rows="3" placeholder="Describe the waste..."></textarea>
+            </div>
+
+            <button type="submit">Submit Report (+10 Points)</button>
+        </form>
+    </div>
+
+    <script>
+        let userLocation = '';
+
+        function getLocation() {
+            if (navigator.geolocation) {
+                document.getElementById('locationStatus').textContent = 'Getting location...';
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        userLocation = `${position.coords.latitude}, ${position.coords.longitude}`;
+                        document.getElementById('location').value = userLocation;
+                        document.getElementById('locationStatus').textContent = '✅ Location detected!';
+                    },
+                    function() {
+                        document.getElementById('locationStatus').textContent = '❌ Location failed';
+                    }
+                );
+            }
+        }
+
+        document.getElementById('reportForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            let userData = JSON.parse(localStorage.getItem('userData')) || {
+                name: 'User',
+                email: '',
+                reports: [],
+                savedIdeas: [],
+                points: 0,
+                sharedIdeas: []
+            };
+
+            let newReport = {
+                id: 'REP' + Date.now(),
+                type: document.getElementById('wasteType').value,
+                location: document.getElementById('location').value,
+                description: document.getElementById('description').value,
+                date: new Date().toLocaleString(),
+                status: 'pending'
+            };
+
+            userData.reports.push(newReport);
+            userData.points += 10;
+
+            // Add to points history
+            let pointsHistory = JSON.parse(localStorage.getItem('pointsHistory')) || [];
+            pointsHistory.push({
+                action: 'report',
+                title: `Reported ${newReport.type} waste`,
+                points: 10,
+                time: new Date().toLocaleString()
+            });
+            localStorage.setItem('pointsHistory', JSON.stringify(pointsHistory));
+
+            localStorage.setItem('userData', JSON.stringify(userData));
+            localStorage.setItem('greenPoints', userData.points);
+            localStorage.setItem('reportCount', userData.reports.length);
+
+            alert('✅ Report submitted! +10 points');
+            window.location.href = 'user-dashboard.html';
+        });
+    </script>
+</body>
+</html>

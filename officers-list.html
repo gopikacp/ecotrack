@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Add this at the top of every page -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <title>Officers List</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background: #f5f5f5; }
+        .nav { background: #00695c; color: white; padding: 15px 20px; display: flex; justify-content: space-between; }
+        .nav a { color: white; text-decoration: none; margin-left: 15px; }
+        .container { max-width: 800px; margin: 20px auto; padding: 0 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin: 20px 0; }
+        .add-btn { background: #00695c; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+        .officer-card { background: white; padding: 15px; border-radius: 8px; margin: 10px 0; display: flex; justify-content: space-between; align-items: center; }
+        .officer-info { display: flex; flex-direction: column; }
+        .officer-name { font-weight: bold; }
+        .officer-details { font-size: 13px; color: #666; }
+        .available { color: #2e7d32; font-weight: bold; }
+        .busy { color: #d32f2f; font-weight: bold; }
+        .offduty { color: #757575; font-weight: bold; }
+        .delete-btn { background: #f44336; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; margin-left: 5px; }
+        .back-btn { margin: 20px 0; display: inline-block; color: #00695c; text-decoration: none; }
+        .empty-state { text-align: center; padding: 40px; background: white; border-radius: 8px; color: #999; }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <h2>🏛️ EcoTrack Kozhikode</h2>
+        <div>
+            <a href="admin-dashboard.html">Dashboard</a>
+            <a href="manage-reports.html">Reports</a>
+            <a href="officers-list.html">Officers</a>
+            <a href="#" onclick="logout()">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <a href="admin-dashboard.html" class="back-btn">← Back to Dashboard</a>
+        
+        <div class="header">
+            <h2>👥 Sanitation Officers</h2>
+            <button class="add-btn" onclick="location.href='add-officer.html'">+ Add Officer</button>
+        </div>
+
+        <div id="officersList">
+            <!-- Officers will be loaded here from localStorage -->
+        </div>
+    </div>
+
+    <script>
+        // Check login
+        if (localStorage.getItem('adminLoggedIn') !== 'true') {
+            window.location.href = 'admin-login.html';
+        }
+
+        // Load officers from localStorage
+        function loadOfficers() {
+            let officers = JSON.parse(localStorage.getItem('officers')) || [];
+            let container = document.getElementById('officersList');
+            
+            if (officers.length === 0) {
+                // Show default officers if no data
+                officers = [
+                    { id: 'OFC001', name: 'Anoop Kumar', ward: 'Mavoor Road', status: 'busy' },
+                    { id: 'OFC002', name: 'Ramesh', ward: 'Beypore', status: 'busy' },
+                    { id: 'OFC003', name: 'Latha', ward: 'Kallai', status: 'available' }
+                ];
+                localStorage.setItem('officers', JSON.stringify(officers));
+            }
+            
+            displayOfficers(officers);
+        }
+
+        // Display officers
+        function displayOfficers(officers) {
+            let container = document.getElementById('officersList');
+            let html = '';
+            
+            officers.forEach(officer => {
+                let statusClass = officer.status === 'available' ? 'available' : 
+                                 officer.status === 'busy' ? 'busy' : 'offduty';
+                let statusText = officer.status === 'available' ? '✅ Available' :
+                                officer.status === 'busy' ? '🚨 On Duty' : '🌙 Off Duty';
+                
+                html += `
+                    <div class="officer-card" data-id="${officer.id}">
+                        <div class="officer-info">
+                            <span class="officer-name">${officer.name}</span>
+                            <span class="officer-details">${officer.id} - ${officer.ward}</span>
+                        </div>
+                        <div>
+                            <span class="${statusClass}">${statusText}</span>
+                            <button class="delete-btn" onclick="deleteOfficer('${officer.id}')">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // Delete officer
+        function deleteOfficer(id) {
+            if (confirm('Remove this officer?')) {
+                let officers = JSON.parse(localStorage.getItem('officers')) || [];
+                officers = officers.filter(o => o.id !== id);
+                localStorage.setItem('officers', JSON.stringify(officers));
+                loadOfficers(); // Reload list
+            }
+        }
+
+        // Logout
+        function logout() {
+            if (confirm('Logout?')) {
+                localStorage.removeItem('adminLoggedIn');
+                window.location.href = 'admin-login.html';
+            }
+        }
+
+        // Check for new officer from URL (when coming back from add page)
+        window.onload = function() {
+            loadOfficers();
+            
+            // Check if we have a new officer from sessionStorage
+            let newOfficer = sessionStorage.getItem('newOfficer');
+            if (newOfficer) {
+                let officer = JSON.parse(newOfficer);
+                let officers = JSON.parse(localStorage.getItem('officers')) || [];
+                officers.push(officer);
+                localStorage.setItem('officers', JSON.stringify(officers));
+                sessionStorage.removeItem('newOfficer');
+                loadOfficers();
+                alert(`✅ Officer ${officer.name} added successfully!`);
+            }
+        };
+    </script>
+</body>
+</html>

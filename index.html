@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Add this at the top of every page -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoTrack - Waste Management</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="header">
+        <h1>♻️ EcoTrack</h1>
+        <p>Report. Recycle. Reuse. Reimagine.</p>
+    </div>
+    
+    <div class="role-selector">
+        <button onclick="location.href='admin-login.html'" class="btn admin">🏛️ Admin Login</button>
+        <button onclick="location.href='userlogin.html'" class="btn user">👤 User Login</button>
+    </div>
+
+    <div class="features">
+        <div class="feature-card">
+            <h3>📸 Report Waste</h3>
+            <p>Take photo and report garbage in your area</p>
+        </div>
+        <div class="feature-card">
+            <h3>💡 Reuse Ideas</h3>
+            <p>Learn how to transform waste into useful items</p>
+        </div>
+        <div class="feature-card">
+            <h3>🗺️ Recycling Centers</h3>
+            <p>Find nearby places to recycle</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <!-- In your index.html, the buttons should link to: -->
+
+</body>
+</html>

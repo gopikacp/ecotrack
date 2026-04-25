@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Add this at the top of every page -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <title>Manage Reports</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background: #f5f5f5; }
+        .nav { background: #00695c; color: white; padding: 15px 20px; display: flex; justify-content: space-between; }
+        .nav a { color: white; text-decoration: none; margin-left: 15px; }
+        .container { max-width: 1000px; margin: 20px auto; padding: 0 20px; }
+        table { width: 100%; background: white; border-collapse: collapse; border-radius: 8px; overflow: hidden; }
+        th { background: #00695c; color: white; padding: 12px; }
+        td { padding: 10px; border-bottom: 1px solid #eee; }
+        .pending { color: #f57c00; font-weight: bold; }
+        .progress { color: #1976d2; font-weight: bold; }
+        .resolved { color: #2e7d32; font-weight: bold; }
+        .back-btn { margin: 20px 0; display: inline-block; color: #00695c; text-decoration: none; }
+        .status-select {
+            padding: 5px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            cursor: pointer;
+        }
+        .save-status {
+            background: #00695c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+        .save-status:hover {
+            background: #004d40;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <h2>🏛️ EcoTrack Kozhikode</h2>
+        <div>
+            <a href="admin-dashboard.html">Dashboard</a>
+            <a href="manage-reports.html">Reports</a>
+            <a href="officers-list.html">Officers</a>
+            <a href="#" onclick="logout()">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <a href="admin-dashboard.html" class="back-btn">← Back to Dashboard</a>
+        <h2>📋 All Reports</h2>
+        
+        <table id="reportsTable">
+            <tr>
+                <th>ID</th>
+                <th>Location</th>
+                <th>Type</th>
+                <th>Current Status</th>
+                <th>Change Status</th>
+            </tr>
+            <tr id="report-K201">
+                <td>#K201</td>
+                <td>Mavoor Road</td>
+                <td>Plastic</td>
+                <td class="pending status-display" id="status-K201">⏳ Pending</td>
+                <td>
+                    <select class="status-select" id="select-K201">
+                        <option value="pending">⏳ Pending</option>
+                        <option value="progress">🔄 In Progress</option>
+                        <option value="resolved">✅ Resolved</option>
+                    </select>
+                    <button class="save-status" onclick="updateStatus('K201')">Update</button>
+                </td>
+            </tr>
+            <tr id="report-K202">
+                <td>#K202</td>
+                <td>Beypore</td>
+                <td>Marine</td>
+                <td class="progress status-display" id="status-K202">🔄 In Progress</td>
+                <td>
+                    <select class="status-select" id="select-K202">
+                        <option value="pending">⏳ Pending</option>
+                        <option value="progress">🔄 In Progress</option>
+                        <option value="resolved">✅ Resolved</option>
+                    </select>
+                    <button class="save-status" onclick="updateStatus('K202')">Update</button>
+                </td>
+            </tr>
+            <tr id="report-K203">
+                <td>#K203</td>
+                <td>Kallai</td>
+                <td>Organic</td>
+                <td class="resolved status-display" id="status-K203">✅ Resolved</td>
+                <td>
+                    <select class="status-select" id="select-K203">
+                        <option value="pending">⏳ Pending</option>
+                        <option value="progress">🔄 In Progress</option>
+                        <option value="resolved">✅ Resolved</option>
+                    </select>
+                    <button class="save-status" onclick="updateStatus('K203')">Update</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <script>
+        // Check login
+        if (localStorage.getItem('adminLoggedIn') !== 'true') {
+            window.location.href = 'admin-login.html';
+        }
+
+        // Load saved statuses from localStorage
+        function loadStatuses() {
+            let savedStatuses = JSON.parse(localStorage.getItem('reportStatuses')) || {};
+            
+            // Apply saved statuses to each report
+            document.querySelectorAll('tr[id^="report-"]').forEach(row => {
+                let reportId = row.id.replace('report-', '');
+                if (savedStatuses[reportId]) {
+                    updateStatusDisplay(reportId, savedStatuses[reportId]);
+                }
+            });
+        }
+
+        // Update status
+        function updateStatus(reportId) {
+            let select = document.getElementById(`select-${reportId}`);
+            let newStatus = select.value;
+            
+            // Update the display
+            updateStatusDisplay(reportId, newStatus);
+            
+            // Save to localStorage
+            let savedStatuses = JSON.parse(localStorage.getItem('reportStatuses')) || {};
+            savedStatuses[reportId] = newStatus;
+            localStorage.setItem('reportStatuses', JSON.stringify(savedStatuses));
+            
+            // Show success message
+            alert(`✅ Report ${reportId} status updated to ${newStatus}`);
+        }
+
+        // Update status display
+        function updateStatusDisplay(reportId, status) {
+            let statusCell = document.getElementById(`status-${reportId}`);
+            let select = document.getElementById(`select-${reportId}`);
+            
+            // Remove all status classes
+            statusCell.classList.remove('pending', 'progress', 'resolved');
+            
+            // Add appropriate class and text
+            if (status === 'pending') {
+                statusCell.classList.add('pending');
+                statusCell.textContent = '⏳ Pending';
+            } else if (status === 'progress') {
+                statusCell.classList.add('progress');
+                statusCell.textContent = '🔄 In Progress';
+            } else if (status === 'resolved') {
+                statusCell.classList.add('resolved');
+                statusCell.textContent = '✅ Resolved';
+            }
+            
+            // Update select dropdown to match current status
+            if (select) {
+                select.value = status;
+            }
+        }
+
+        // Logout function
+        function logout() {
+            if (confirm('Logout?')) {
+                localStorage.removeItem('adminLoggedIn');
+                window.location.href = 'admin-login.html';
+            }
+        }
+
+        // Load statuses when page loads
+        window.onload = function() {
+            loadStatuses();
+        };
+    </script>
+</body>
+</html>

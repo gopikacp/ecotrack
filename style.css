@@ -1,0 +1,296 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #73c3a6 0%, #368059 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.header {
+    text-align: center;
+    color: white;
+    padding: 40px 20px;
+}
+
+.header h1 {
+    font-size: 48px;
+    margin-bottom: 10px;
+}
+
+.role-selector {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin: 40px 0;
+}
+
+.btn {
+    padding: 15px 40px;
+    font-size: 18px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+.btn:hover {
+    transform: scale(1.05);
+}
+
+.admin {
+    background: #ff6b6b;
+    color: white;
+}
+
+.user {
+    background: #4ecdc4;
+    color: white;
+}
+
+.features {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.feature-card {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    width: 300px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.feature-card h3 {
+    color: #333;
+    margin-bottom: 10px;
+}
+/* Add to your existing style.css */
+
+/* ===== GLOBAL STYLES ===== */
+:root {
+    --primary-green: #2e7d32;
+    --light-green: #4caf50;
+    --accent-blue: #2196f3;
+    --admin-red: #c62828;
+    --admin-light-red: #ff6b6b;
+    --user-teal: #4ecdc4;
+    --warning-yellow: #ffc107;
+    --gray-bg: #f5f5f5;
+    --shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* ===== NAVIGATION BARS ===== */
+.user-nav {
+    background: var(--user-teal);
+    padding: 15px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.admin-nav {
+    background: var(--admin-red);
+    padding: 15px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    margin: 0 15px;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.nav-links a:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+/* ===== FORMS ===== */
+.form-container {
+    max-width: 500px;
+    margin: 50px auto;
+    padding: 30px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+/* ===== CARDS ===== */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+.card {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: transform 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.card-content {
+    padding: 20px;
+}
+
+/* ===== BADGES ===== */
+.badge {
+    padding: 3px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.badge-pending { background: #ffd700; color: #000; }
+.badge-progress { background: #2196f3; color: white; }
+.badge-resolved { background: #4caf50; color: white; }
+.badge-high { background: #f44336; color: white; }
+.badge-medium { background: #ff9800; color: white; }
+.badge-low { background: #8bc34a; color: white; }
+
+/* ===== LOADING SPINNER ===== */
+.spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid var(--primary-green);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ===== MODAL ===== */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    max-width: 500px;
+    width: 90%;
+}
+/* Add this after line 15 */
+.ideas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+    margin-top: 30px;
+}
+
+.idea-card {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transition: transform 0.3s;
+    cursor: pointer;
+}
+
+.idea-card:hover {
+    transform: translateY(-5px);
+}
+
+.idea-image {
+    height: 200px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+.difficulty-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 5px 15px;
+    border-radius: 20px;
+    color: white;
+    font-size: 12px;
+    background: #4ecdc4;
+}
+
+.difficulty-badge.easy { background: #4caf50; }
+.difficulty-badge.medium { background: #ff9800; }
+.difficulty-badge.hard { background: #f44336; }
+
+.idea-content {
+    padding: 20px;
+}
+
+.save-btn {
+    background: none;
+    border: 2px solid #4ecdc4;
+    color: #4ecdc4;
+    padding: 8px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.save-btn:hover {
+    background: #4ecdc4;
+    color: white;
+}

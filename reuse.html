@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reuse Ideas - EcoTrack</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .reuse-container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+        .category-pills {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        .pill {
+            padding: 10px 20px;
+            background: #f0f0f0;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .pill:hover, .pill.active {
+            background: #4ecdc4;
+            color: white;
+        }
+        .ideas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        .idea-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+        .idea-card:hover {
+            transform: translateY(-10px);
+        }
+        .idea-image {
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        .difficulty-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 15px;
+            border-radius: 20px;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .easy { background: #4caf50; }
+        .medium { background: #ff9800; }
+        .hard { background: #f44336; }
+        .idea-content {
+            padding: 20px;
+        }
+        .idea-meta {
+            display: flex;
+            gap: 15px;
+            color: #666;
+            font-size: 14px;
+            margin: 10px 0;
+        }
+        .save-btn {
+            background: none;
+            border: 2px solid #4ecdc4;
+            color: #4ecdc4;
+            padding: 8px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .save-btn:hover {
+            background: #4ecdc4;
+            color: white;
+        }
+        .no-results {
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+            color: #666;
+            display: none;
+        }
+        .search-box {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 16px;
+            margin: 20px 0;
+        }
+        .search-box:focus {
+            outline: none;
+            border-color: #4ecdc4;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <div class="user-nav">
+        <h2 onclick="location.href='user.html'" style="cursor: pointer;">♻️ EcoTrack</h2>
+        <div class="nav-links">
+            <a href="user.html">Dashboard</a>
+            <a href="reportwaste.html">Report Waste</a>
+            <a href="reuse-ideas.html" style="background: rgba(255,255,255,0.2);">Reuse Ideas</a>
+            <a href="saved-ideas.html">Saved Ideas</a>
+            <a href="share-idea.html">Share Idea</a>
+            <a href="index.html" onclick="return confirm('Logout?')">Logout</a>
+        </div>
+    </div>
+
+    <div class="reuse-container">
+        <h2>💡 Creative Reuse Ideas</h2>
+        <p>Don't throw it away! Transform it into something beautiful and earn Green Points! 🌱</p>
+
+        <!-- Search Box -->
+        <input type="text" class="search-box" id="searchInput" placeholder="🔍 Search for ideas..." onkeyup="searchIdeas()">
+
+        <!-- Category Filter -->
+        <div class="category-pills">
+            <span class="pill active" onclick="filterIdeas('all')">All</span>
+            <span class="pill" onclick="filterIdeas('plastic')">Plastic</span>
+            <span class="pill" onclick="filterIdeas('paper')">Paper</span>
+            <span class="pill" onclick="filterIdeas('glass')">Glass</span>
+            <span class="pill" onclick="filterIdeas('clothes')">Clothes</span>
+            <span class="pill" onclick="filterIdeas('ewaste')">E-Waste</span>
+            <span class="pill" onclick="filterIdeas('kitchen')">Kitchen</span>
+            <span class="pill" onclick="filterIdeas('furniture')">Furniture</span>
+        </div>
+
+        <!-- Ideas Grid -->
+        <div class="ideas-grid" id="ideasGrid">
+            <!-- Idea 1 - Plastic -->
+            <div class="idea-card" data-category="plastic" onclick="viewIdea(1)">
+                <div class="idea-image" style="background-image: url('https://images.unsplash.com/photo-1533035353720-f1c6a75cd4ab?w=300')">
+                    <span class="difficulty-badge easy">Easy</span>
+                </div>
+                <div class="idea-content">
+                    <h3>Plastic Bottle → Vertical Garden</h3>
+                    <div class="idea-meta">
+                        <span>⏱️ 10 mins</span>
+                        <span>🌱 Beginner</span>
+                        <span>💰 Free</span>
+                    </div>
+                    <p>Turn plastic bottles into a beautiful vertical garden for your balcony.</p>
+                    <p><strong>What you need:</strong> Plastic bottles, rope, soil, plants</p>
+                    <button class="save-btn" onclick="event.stopPropagation(); saveIdea(1)">❤️ Save Idea</button>
+                </div>
+            </div>
+
+            <!-- Idea 2 - Paper -->
+            <div class="idea-card" data-category="paper" onclick="viewIdea(2)">
+                <div class="idea-image" style="background-image: url('https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=300')">
+                    <span class="difficulty-badge easy">Easy</span>
+                </div>
+                <div class="idea-content">
+                    <h3>Newspaper → Eco-friendly Bags</h3>
+                    <div class="idea-meta">
+                        <span>⏱️ 15 mins</span>
+                        <span>🌱 Beginner</span>
+                        <span>💰 Free</span>
+                    </div>
+                    <p>Make strong paper bags from old newspapers for shopping.</p>
+                    <p><strong>What you need:</strong> Old newspapers, glue, scissors</p>
+                    <button class="save-btn" onclick="event.stopPropagation(); saveIdea(2)">❤️ Save Idea</button>
+                </div>
+            </div>
+
+            <!-- Idea 3 - Glass -->
+            <div class="idea-card" data-category="glass" onclick="viewIdea(3)">
+                <div class="idea-image" style="background-image: url('https://images.unsplash.com/photo-1574691250077-03a929faece5?w=300')">
+                    <span class="difficulty-badge medium">Medium</span>
+                </div>
+                <div class="idea-content">
+                    <h3>Glass Bottle → Decorative Lamp</h3>
+                    <div class="idea-meta">
+                        <span>⏱️ 30 mins</span>
+                        <span>🔧 Intermediate</span>
+                        <span>💰 ₹100</span>
+                    </div>
+                    <p>Create beautiful fairy light lamps from old glass bottles.</p>
+                    <p><strong>What you need:</strong> Glass bottle, fairy lights, paint</p>
+                    <button class="save-btn" onclick="event.stopPropagation(); saveIdea(3)">❤️ Save Idea</button>
+                </div>
+            </div>
+
+            <!-- Idea 4 - Clothes -->
+            <div class="idea-card" data-category="clothes" onclick="viewIdea(4)">
+                <div class="idea-image" style="background-image: url('https://images.unsplash.com/photo-1598899134735-39c215e8b5b6?w=300')">
+                    <span class="difficulty-badge medium">Medium</span>
+                </div>
+                <div class="idea-content">
+                    <h3>Old T-shirt → Tote Bag</h3>
+                    <div class="idea-meta">
+                        <span>⏱️ 20 mins</span>
+                        <span>🔧 Intermediate</span>
+                        <span>💰 Free</span>
+                    </div>
+                    <p>No-sew method to turn old t-shirts into reusable shopping bags.</p>
+                    <p><strong>What you need:</strong> Old t-shirt, scissors</p>
+                    <button class="save-btn" onclick="event.stopPropagation(); saveIdea(4)">❤️ Save Idea</button>
+                </div>
+            </div>
+
+            <!-- Idea 5 - Kitchen -->
+            <div class="idea-card" data-category="kitchen" onclick="viewIdea(5)">
+                <div class="idea-image" style="background-image: url('https://images.unsplash.com/photo-1490818387583-1baba5e638af?w=300')">
+                    <span class="difficulty-badge easy">Easy</span>
+                </div>
+                <div class="idea-content">
+                    <h3>Egg Cartons → Seed Starters</h3>
+                    <div class="idea-meta">
+                        <span>⏱️ 5 mins</span>
+                        <span>🌱 Beginner</span>
+                        <span>💰 Free</span>
+                    </div>
+                    <p>Use egg cartons to start your vegetable seedlings.</p>
+                    <p><strong>What you need:</strong> Egg carton, soil, seeds</p>
+                    <button class="save-btn" onclick="event.stopPropagation(); saveIdea(5)">❤️ Save Idea</button>
+                </div>
+            </div>
+
+            <!-- Idea 6 - E-Waste -->
+            <div class="idea-card" data-category="ewaste" onclick="viewIdea(6)">
+                <div class="idea-image" style="background-image: url('https://images.unsplash.com/photo-1550009158-9ebf69173e03?w=300')">
+                    <span class="difficulty-badge hard">Hard</span>
+                </div>
+                <div class="idea-content">
+                    <h3>Old Keyboard → Wall Clock</h3>
+                    <div class="idea-meta">
+                        <span>⏱️ 45 mins</span>
+                        <span>🔥 Advanced</span>
+                        <span>💰 ₹200</span>
+                    </div>
+                    <p>Turn an old computer keyboard into a unique wall clock.</p>
+                    <p><strong>What you need:</strong> Old keyboard, clock mechanism, glue</p>
+                    <button class="save-btn" onclick="event.stopPropagation(); saveIdea(6)">❤️ Save Idea</button>
+                </div>
+            </div>
+
+            <!-- Idea 7 - Furniture -->
+            <div class="idea-card" data-category="furniture" onclick="viewIdea(7)">
+                <div class="idea-image" style="background-image: url('https://images.unsplash.com/photo-1586105449897-20b5efeb3233?w=300')">
+                    <span class="difficulty-badge medium">Medium</span>
+                </div>
+                <div class="idea-content">
+                    <h3>Wooden Pallets → Coffee Table</h3>
+                    <div class="idea-meta">
+                        <span>⏱️ 60 mins</span>
+                        <span>🔧 Intermediate</span>
+                        <span>💰 ₹300</span>
+                    </div>
+                    <p>Transform old wooden pallets into a rustic coffee table.</p>
+                    <p><strong>What you need:</strong> Wooden pallets, sandpaper, nails, paint</p>
+                    <button class="save-btn" onclick="event.stopPropagation(); saveIdea(7)">❤️ Save Idea</button>
+                </div>
+            </div>
+
+            <!-- Idea 8 - Plastic -->
+            <div class="idea-card" data-category="plastic" onclick="viewIdea(8)">
+                <div class="idea-image" style="background-image: url('https://images.unsplash.com/photo-1605600659873-d4dd7b0c0d6e?w=300')">
+                    <span class="difficulty-badge easy">Easy</span>
+                </div>
+                <div class="idea-content">
+                    <h3>Plastic Bottle → Pen Stand</h3>
+                    <div class="idea-meta">
+                        <span>⏱️ 10 mins</span>
+                        <span>🌱 Beginner</span>
+                        <span>💰 Free</span>
+                    </div>
+                    <p>Cut and decorate plastic bottles to make colorful pen holders.</p>
+                    <p><strong>What you need:</strong> Plastic bottle, scissors, paint</p>
+                    <button class="save-btn" onclick="event.stopPropagation(); saveIdea(8)">❤️ Save Idea</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- No Results Message -->
+        <div id="noResults" class="no-results">
+            <p>😕 No ideas found in this category</p>
+            <button class="btn user" onclick="filterIdeas('all')">View All Ideas</button>
+        </div>
+    </div>
+
+    <script>
+        // Filter ideas by category
+        function filterIdeas(category) {
+            // Update active pill
+            let pills = document.querySelectorAll('.pill');
+            pills.forEach(pill => {
+                pill.classList.remove('active');
+                if(pill.textContent.toLowerCase() === category.toLowerCase() || 
+                   (category === 'all' && pill.textContent === 'All')) {
+                    pill.classList.add('active');
+                }
+            });
+
+            // Filter cards
+            let cards = document.querySelectorAll('.idea-card');
+            let visibleCount = 0;
+            
+            cards.forEach(card => {
+                if(category === 'all' || card.dataset.category === category) {
+                    card.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // Show/hide no results message
+            let noResults = document.getElementById('noResults');
+            if(visibleCount === 0) {
+                noResults.style.display = 'block';
+            } else {
+                noResults.style.display = 'none';
+            }
+        }
+
+        // Search ideas
+        function searchIdeas() {
+            let searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            let cards = document.querySelectorAll('.idea-card');
+            let visibleCount = 0;
+            
+            cards.forEach(card => {
+                let title = card.querySelector('h3').textContent.toLowerCase();
+                let desc = card.querySelector('p').textContent.toLowerCase();
+                
+                if(title.includes(searchTerm) || desc.includes(searchTerm)) {
+                    card.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            let noResults = document.getElementById('noResults');
+            if(visibleCount === 0) {
+                noResults.style.display = 'block';
+            } else {
+                noResults.style.display = 'none';
+            }
+        }
+
+        // View idea details
+        function viewIdea(ideaId) {
+            window.location.href = `reuse-detail.html?id=${ideaId}`;
+        }
+
+        // Save idea
+        function saveIdea(ideaId) {
+            event.stopPropagation(); // Prevent card click
+            
+            // Get saved ideas from localStorage
+            let savedIdeas = JSON.parse(localStorage.getItem('savedIdeas')) || [];
+            
+            if(!savedIdeas.includes(ideaId)) {
+                savedIdeas.push(ideaId);
+                localStorage.setItem('savedIdeas', JSON.stringify(savedIdeas));
+                
+                // Change button text temporarily
+                let btn = event.target;
+                let originalText = btn.textContent;
+                btn.textContent = '✓ Saved!';
+                btn.style.background = '#4ecdc4';
+                btn.style.color = 'white';
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = 'none';
+                    btn.style.color = '#4ecdc4';
+                }, 2000);
+                
+                // Show notification
+                showNotification('Idea saved! +5 Green Points 🌱');
+                
+                // Update points
+                updatePoints(5);
+            } else {
+                showNotification('Already saved!');
+            }
+        }
+
+        // Show notification
+        function showNotification(message) {
+            let notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #4ecdc4;
+                color: white;
+                padding: 15px 25px;
+                border-radius: 10px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Update points
+        function updatePoints(points) {
+            let currentPoints = parseInt(localStorage.getItem('greenPoints')) || 0;
+            currentPoints += points;
+            localStorage.setItem('greenPoints', currentPoints);
+        }
+
+        // Add animation keyframes
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Load saved count on page load
+        window.onload = function() {
+            let savedIdeas = JSON.parse(localStorage.getItem('savedIdeas')) || [];
+            console.log(`${savedIdeas.length} saved ideas`);
+        }
+    </script>
+</body>
+</html>

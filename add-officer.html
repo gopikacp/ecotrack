@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Add this at the top of every page -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <title>Add Officer</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background: #f5f5f5; }
+        .nav { background: #00695c; color: white; padding: 15px 20px; display: flex; justify-content: space-between; }
+        .nav a { color: white; text-decoration: none; margin-left: 15px; }
+        .container { max-width: 500px; margin: 30px auto; padding: 0 20px; }
+        .form-box { background: white; padding: 25px; border-radius: 10px; }
+        h2 { color: #00695c; margin-bottom: 20px; }
+        label { display: block; margin: 10px 0 5px; font-weight: bold; }
+        input, select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        .checkbox-group { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 10px 0; }
+        .buttons { display: flex; gap: 10px; margin-top: 20px; }
+        button { flex: 1; padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .save-btn { background: #00695c; color: white; }
+        .cancel-btn { background: #f44336; color: white; }
+        .back-btn { margin: 20px 0; display: inline-block; color: #00695c; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <h2>🏛️ EcoTrack Kozhikode</h2>
+        <div>
+            <a href="admin-dashboard.html">Dashboard</a>
+            <a href="manage-reports.html">Reports</a>
+            <a href="officers-list.html">Officers</a>
+            <a href="#" onclick="logout()">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <a href="officers-list.html" class="back-btn">← Back to Officers</a>
+        
+        <div class="form-box">
+            <h2>➕ Add New Officer</h2>
+            
+            <label>Full Name *</label>
+            <input type="text" id="name" placeholder="Enter full name" required>
+            
+            <label>Employee ID *</label>
+            <input type="text" id="empId" placeholder="e.g., OFC010" required>
+            
+            <label>Phone</label>
+            <input type="text" id="phone" placeholder="9876543210">
+            
+            <label>Status</label>
+            <select id="status">
+                <option value="available">✅ Available</option>
+                <option value="busy">🚨 On Duty</option>
+                <option value="offduty">🌙 Off Duty</option>
+            </select>
+            
+            <label>Assigned Ward</label>
+            <select id="ward">
+                <option value="Mavoor Road">Mavoor Road</option>
+                <option value="Beypore">Beypore</option>
+                <option value="Kallai">Kallai</option>
+                <option value="Nadakkavu">Nadakkavu</option>
+                <option value="Kozhikode Beach">Beach</option>
+                <option value="Palayam">Palayam</option>
+                <option value="West Hill">West Hill</option>
+                <option value="Medical College">Medical College</option>
+            </select>
+            
+            <div class="buttons">
+                <button class="save-btn" onclick="addOfficer()">Save Officer</button>
+                <button class="cancel-btn" onclick="location.href='officers-list.html'">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        if (localStorage.getItem('adminLoggedIn') !== 'true') {
+            window.location.href = 'admin-login.html';
+        }
+
+        function logout() {
+            localStorage.removeItem('adminLoggedIn');
+            window.location.href = 'admin-login.html';
+        }
+
+        function addOfficer() {
+            let name = document.getElementById('name').value.trim();
+            let empId = document.getElementById('empId').value.trim();
+            let phone = document.getElementById('phone').value.trim();
+            let status = document.getElementById('status').value;
+            let ward = document.getElementById('ward').value;
+            
+            if (!name || !empId) {
+                alert('Please enter name and employee ID');
+                return;
+            }
+            
+            // Create new officer object
+            let newOfficer = {
+                id: empId,
+                name: name,
+                phone: phone || 'Not provided',
+                status: status,
+                ward: ward,
+                joined: new Date().toLocaleDateString()
+            };
+            
+            // Save to sessionStorage to pass back to officers list
+            sessionStorage.setItem('newOfficer', JSON.stringify(newOfficer));
+            
+            // Go back to officers list
+            window.location.href = 'officers-list.html';
+        }
+    </script>
+</body>
+</html>

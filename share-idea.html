@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Share Idea - EcoTrack</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background: #f5f5f5; }
+        .nav { background: #4ecdc4; color: white; padding: 15px 20px; display: flex; justify-content: space-between; }
+        .nav a { color: white; text-decoration: none; margin-left: 15px; }
+        .container { max-width: 600px; margin: 30px auto; padding: 20px; background: white; border-radius: 10px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;
+        }
+        button { background: #4ecdc4; color: white; border: none; padding: 12px; border-radius: 5px; cursor: pointer; width: 100%; margin: 5px 0; }
+        .cancel-btn { background: #f44336; }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <h2 onclick="location.href='user-dashboard.html'">♻️ EcoTrack</h2>
+        <div>
+            <a href="user-dashboard.html">Dashboard</a>
+            <a href="reuse-ideas.html">Reuse</a>
+            <a href="rewards.html">Rewards</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>✨ Share Your Reuse Idea</h2>
+        <p>Earn 20 Green Points for each approved idea!</p>
+
+        <form id="shareForm">
+            <div class="form-group">
+                <label>Idea Title</label>
+                <input type="text" id="title" placeholder="e.g., Plastic Bottle Planter" required>
+            </div>
+
+            <div class="form-group">
+                <label>Category</label>
+                <select id="category" required>
+                    <option value="">Select</option>
+                    <option value="Plastic">Plastic</option>
+                    <option value="Paper">Paper</option>
+                    <option value="Glass">Glass</option>
+                    <option value="Clothes">Clothes</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="description" rows="3" placeholder="Describe your idea..." required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Materials Needed</label>
+                <textarea id="materials" rows="2" placeholder="List materials..." required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Steps</label>
+                <textarea id="steps" rows="4" placeholder="Step-by-step instructions..." required></textarea>
+            </div>
+
+            <button type="submit">Submit Idea (+20 Points)</button>
+            <button type="button" class="cancel-btn" onclick="location.href='user-dashboard.html'">Cancel</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('shareForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            let userData = JSON.parse(localStorage.getItem('userData')) || {
+                name: 'User',
+                email: '',
+                reports: [],
+                savedIdeas: [],
+                points: 0,
+                sharedIdeas: []
+            };
+
+            let newIdea = {
+                id: 'IDEA' + Date.now(),
+                title: document.getElementById('title').value,
+                category: document.getElementById('category').value,
+                description: document.getElementById('description').value,
+                materials: document.getElementById('materials').value,
+                steps: document.getElementById('steps').value,
+                date: new Date().toLocaleString(),
+                status: 'pending'
+            };
+
+            userData.sharedIdeas.push(newIdea);
+            userData.points += 20;
+
+            // Add to points history
+            let pointsHistory = JSON.parse(localStorage.getItem('pointsHistory')) || [];
+            pointsHistory.push({
+                action: 'share',
+                title: `Shared idea: ${newIdea.title}`,
+                points: 20,
+                time: new Date().toLocaleString()
+            });
+            localStorage.setItem('pointsHistory', JSON.stringify(pointsHistory));
+
+            localStorage.setItem('userData', JSON.stringify(userData));
+            localStorage.setItem('greenPoints', userData.points);
+            localStorage.setItem('sharedIdeasCount', userData.sharedIdeas.length);
+
+            alert('✅ Idea submitted! +20 points (pending approval)');
+            window.location.href = 'user-dashboard.html';
+        });
+    </script>
+</body>
+</html>

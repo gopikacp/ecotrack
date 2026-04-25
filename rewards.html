@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rewards - EcoTrack</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background: #f5f5f5; }
+        .nav { background: #4ecdc4; color: white; padding: 15px 20px; display: flex; justify-content: space-between; }
+        .nav a { color: white; text-decoration: none; margin-left: 15px; }
+        .container { max-width: 1000px; margin: 20px auto; padding: 20px; }
+        .points-card {
+            background: linear-gradient(135deg, #4ecdc4, #2e7d32);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .points-number { font-size: 72px; font-weight: bold; }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .history-list {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .rewards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        .reward-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .redeem-btn {
+            background: #4ecdc4;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+        .redeem-btn:disabled { background: #ccc; }
+        .reset-btn { background: #f44336; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <h2 onclick="location.href='user-dashboard.html'">♻️ EcoTrack</h2>
+        <div>
+            <a href="user-dashboard.html">Dashboard</a>
+            <a href="reuse-ideas.html">Reuse</a>
+            <a href="rewards.html">Rewards</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="points-card">
+            <h2>🏆 Your Green Points</h2>
+            <div class="points-number" id="totalPoints">0</div>
+            <p>Keep earning points to unlock rewards!</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div id="reportStat">0</div>
+                <p>Reports</p>
+            </div>
+            <div class="stat-card">
+                <div id="savedStat">0</div>
+                <p>Saved Ideas</p>
+            </div>
+            <div class="stat-card">
+                <div id="sharedStat">0</div>
+                <p>Shared Ideas</p>
+            </div>
+            <div class="stat-card">
+                <div id="level">Beginner</div>
+                <p>Level</p>
+            </div>
+        </div>
+
+        <div class="history-list">
+            <h3>📜 Points History</h3>
+            <button class="reset-btn" onclick="resetPoints()">Reset All</button>
+            <div id="historyContainer"></div>
+        </div>
+
+        <h3>🎁 Available Rewards</h3>
+        <div class="rewards-grid" id="rewardsContainer"></div>
+    </div>
+
+    <script>
+        let userPoints = 0;
+        let userData = JSON.parse(localStorage.getItem('userData')) || {
+            reports: [],
+            savedIdeas: [],
+            sharedIdeas: [],
+            points: 0
+        };
+        let pointsHistory = JSON.parse(localStorage.getItem('pointsHistory')) || [];
+
+        function loadRewards() {
+            userPoints = userData.points;
+            document.getElementById('totalPoints').textContent = userPoints;
+            document.getElementById('reportStat').textContent = userData.reports.length;
+            document.getElementById('savedStat').textContent = userData.savedIdeas.length;
+            document.getElementById('sharedStat').textContent = userData.sharedIdeas.length;
+
+            // Level calculation
+            let level = 'Beginner';
+            if (userPoints >= 1000) level = 'Diamond';
+            else if (userPoints >= 500) level = 'Platinum';
+            else if (userPoints >= 250) level = 'Gold';
+            else if (userPoints >= 100) level = 'Silver';
+            document.getElementById('level').textContent = level;
+
+            // History display
+            let historyHtml = '';
+            if (pointsHistory.length === 0) {
+                historyHtml = '<p>No points earned yet</p>';
+            } else {
+                pointsHistory.slice().reverse().forEach(item => {
+                    historyHtml += `
+                        <div class="history-item">
+                            <span>${item.title}</span>
+                            <span style="color: ${item.points > 0 ? '#4caf50' : '#f44336'}; font-weight: bold;">
+                                ${item.points > 0 ? '+' : ''}${item.points}
+                            </span>
+                        </div>
+                    `;
+                });
+            }
+            document.getElementById('historyContainer').innerHTML = historyHtml;
+
+            // Rewards display
+            const rewards = [
+                { id: 1, name: 'Movie Ticket', points: 500, icon: '🎟️' },
+                { id: 2, name: 'Pizza Coupon', points: 300, icon: '🍕' },
+                { id: 3, name: 'Shopping Voucher', points: 400, icon: '🛍️' },
+                { id: 4, name: 'Plant a Tree', points: 200, icon: '🌱' },
+                { id: 5, name: 'Eco Product', points: 150, icon: '🧴' },
+                { id: 6, name: 'Bus Pass', points: 100, icon: '🚌' }
+            ];
+
+            let rewardsHtml = '';
+            rewards.forEach(reward => {
+                rewardsHtml += `
+                    <div class="reward-card">
+                        <div style="font-size: 40px;">${reward.icon}</div>
+                        <h4>${reward.name}</h4>
+                        <p>${reward.points} Points</p>
+                        <button class="redeem-btn" onclick="redeemReward('${reward.name}', ${reward.points})" 
+                                ${userPoints < reward.points ? 'disabled' : ''}>
+                            ${userPoints < reward.points ? `Need ${reward.points - userPoints} more` : 'Redeem'}
+                        </button>
+                    </div>
+                `;
+            });
+            document.getElementById('rewardsContainer').innerHTML = rewardsHtml;
+        }
+
+        function redeemReward(name, points) {
+            if (userPoints >= points) {
+                userData.points -= points;
+                pointsHistory.push({
+                    action: 'redeem',
+                    title: `Redeemed: ${name}`,
+                    points: -points,
+                    time: new Date().toLocaleString()
+                });
+
+                localStorage.setItem('userData', JSON.stringify(userData));
+                localStorage.setItem('greenPoints', userData.points);
+                localStorage.setItem('pointsHistory', JSON.stringify(pointsHistory));
+
+                alert(`✅ Successfully redeemed ${name}!`);
+                loadRewards();
+            }
+        }
+
+        function resetPoints() {
+            if (confirm('Reset all points and history?')) {
+                userData.points = 0;
+                pointsHistory = [];
+                localStorage.setItem('userData', JSON.stringify(userData));
+                localStorage.setItem('pointsHistory', JSON.stringify(pointsHistory));
+                loadRewards();
+                alert('Points reset to zero');
+            }
+        }
+
+        loadRewards();
+    </script>
+</body>
+</html>

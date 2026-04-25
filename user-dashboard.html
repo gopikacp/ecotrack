@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Dashboard - EcoTrack</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background: #f5f5f5; }
+        .nav { background: #4ecdc4; color: white; padding: 15px 20px; display: flex; justify-content: space-between; }
+        .nav a { color: white; text-decoration: none; margin-left: 15px; }
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 30px 0;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .stat-number { font-size: 32px; color: #4ecdc4; font-weight: bold; }
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 30px 0;
+        }
+        .action-btn {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            border: 2px solid #4ecdc4;
+            transition: all 0.3s;
+        }
+        .action-btn:hover { 
+            background: #4ecdc4; 
+            color: white; 
+            transform: scale(1.02);
+        }
+        .reports-list { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 10px; 
+            margin-top: 30px;
+        }
+        .report-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+        .report-item:hover {
+            background: #f5f5f5;
+        }
+        .pending { color: #f57c00; font-weight: bold; }
+        .resolved { color: #2e7d32; font-weight: bold; }
+        .welcome-section {
+            background: linear-gradient(135deg, #4ecdc4, #2e7d32);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <h2 onclick="location.href='user-dashboard.html'">♻️ EcoTrack</h2>
+        <div>
+            <a href="user-dashboard.html">Dashboard</a>
+            <a href="report-waste.html">Report</a>
+            <a href="reuse-ideas.html">Reuse</a>
+            <a href="recycling-centers.html">Centers</a>
+            <a href="rewards.html">Rewards</a>
+            <a href="index.html" onclick="return confirm('Logout?')">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="welcome-section">
+            <h2>Welcome, <span id="userName">User</span>! 👤</h2>
+            <p>Your contribution helps keep Kozhikode clean! 🌱</p>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card" onclick="location.href='myreport.html'">
+                <div class="stat-number" id="reportCount">0</div>
+                <div>Reports Filed</div>
+            </div>
+            <div class="stat-card" onclick="location.href='myreport.html?status=resolved'">
+                <div class="stat-number" id="resolvedCount">0</div>
+                <div>Resolved</div>
+            </div>
+            <div class="stat-card" onclick="location.href='rewards.html'">
+                <div class="stat-number" id="pointsDisplay">0</div>
+                <div>Green Points</div>
+            </div>
+            <div class="stat-card" onclick="location.href='reuse-ideas.html'">
+                <div class="stat-number" id="savedIdeas">0</div>
+                <div>Saved Ideas</div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <div class="action-btn" onclick="location.href='report-waste.html'">📸 Report Waste</div>
+            <div class="action-btn" onclick="location.href='reuse-ideas.html'">💡 Reuse Ideas</div>
+            <div class="action-btn" onclick="location.href='recycling-centers.html'">🗺️ Recycling Centers</div>
+            <div class="action-btn" onclick="location.href='rewards.html'">🏆 Rewards</div>
+        </div>
+
+        <div class="reports-list">
+            <h3>📋 Recent Reports</h3>
+            <div id="reportsContainer">
+                <p>No reports yet</p>
+            </div>
+            <div style="text-align: center; margin-top: 15px;">
+                <button onclick="location.href='myreport.html'" style="background: #4ecdc4; color: white; border: none; padding: 8px 20px; border-radius: 5px; cursor: pointer;">
+                    View All Reports
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load user data
+        let userData = JSON.parse(localStorage.getItem('userData')) || {
+            name: 'User',
+            email: '',
+            reports: [],
+            savedIdeas: [],
+            points: 0,
+            sharedIdeas: []
+        };
+
+        function loadDashboard() {
+            document.getElementById('userName').textContent = userData.name;
+            document.getElementById('reportCount').textContent = userData.reports.length;
+            document.getElementById('resolvedCount').textContent = userData.reports.filter(r => r.status === 'resolved').length;
+            document.getElementById('pointsDisplay').textContent = userData.points;
+            document.getElementById('savedIdeas').textContent = userData.savedIdeas.length;
+
+            // Show recent reports
+            let reportsHtml = '';
+            if (userData.reports.length === 0) {
+                reportsHtml = '<p>No reports yet. Click "Report Waste" to get started!</p>';
+            } else {
+                userData.reports.slice(-3).reverse().forEach(report => {
+                    reportsHtml += `
+                        <div class="report-item" onclick="location.href='myreport.html'">
+                            <span><strong>${report.location}</strong> - ${report.type}</span>
+                            <span class="${report.status === 'pending' ? 'pending' : 'resolved'}">${report.status}</span>
+                        </div>
+                    `;
+                });
+            }
+            document.getElementById('reportsContainer').innerHTML = reportsHtml;
+        }
+
+        loadDashboard();
+    </script>
+</body>
+</html>

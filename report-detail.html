@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Add this at the top of every page -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <title>Report Details - EcoTrack Kozhikode</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: #f5f7fa;
+        }
+        .admin-nav {
+            background: #00695c;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            padding: 8px 15px;
+            border-radius: 5px;
+        }
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        .back-link {
+            margin-bottom: 20px;
+        }
+        .back-link a {
+            color: #00695c;
+            text-decoration: none;
+            font-size: 16px;
+        }
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .report-id {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+        }
+        .status-badge {
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .status-pending { background: #fff3e0; color: #f57c00; }
+        .status-progress { background: #e3f2fd; color: #1976d2; }
+        .status-resolved { background: #e8f5e9; color: #2e7d32; }
+        
+        .report-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #00695c;
+        }
+        .info-row {
+            display: flex;
+            margin-bottom: 15px;
+            padding: 10px 0;
+            border-bottom: 1px dashed #eee;
+        }
+        .info-label {
+            width: 140px;
+            color: #666;
+            font-weight: 500;
+        }
+        .info-value {
+            flex: 1;
+            color: #333;
+            font-weight: 500;
+        }
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .report-photo {
+            width: 100%;
+            height: 150px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        .report-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .timeline {
+            margin-top: 20px;
+        }
+        .timeline-item {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            position: relative;
+            padding-left: 30px;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 5px;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: #00695c;
+        }
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: 7px;
+            top: 25px;
+            width: 2px;
+            height: calc(100% - 10px);
+            background: #e0e0e0;
+        }
+        .timeline-item:last-child::after {
+            display: none;
+        }
+        .timeline-date {
+            min-width: 100px;
+            color: #666;
+        }
+        .timeline-content {
+            flex: 1;
+        }
+        .timeline-content h4 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .timeline-content p {
+            color: #666;
+            font-size: 14px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        .btn-primary {
+            background: #00695c;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            flex: 1;
+            min-width: 150px;
+        }
+        .btn-primary:hover {
+            background: #004d40;
+        }
+        .btn-secondary {
+            background: white;
+            color: #00695c;
+            border: 2px solid #00695c;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            flex: 1;
+            min-width: 150px;
+        }
+        .btn-secondary:hover {
+            background: #e0f2f1;
+        }
+        .btn-danger {
+            background: #d32f2f;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-danger:hover {
+            background: #b71c1c;
+        }
+        .officer-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        .comment-box {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            margin: 15px 0;
+            min-height: 100px;
+        }
+        @media (max-width: 768px) {
+            .report-grid {
+                grid-template-columns: 1fr;
+            }
+            .admin-nav {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-nav">
+        <h2 onclick="location.href='admin-dashboard.html'" style="cursor: pointer;">🏛️ EcoTrack Kozhikode</h2>
+        <div class="nav-links">
+            <a href="admin-dashboard.html">Dashboard</a>
+            <a href="manage-reports.html">Reports</a>
+            <a href="officers-list.html">Officers</a>
+            <a href="waste-heatmap.html">Heatmap</a>
+            <a href="#" onclick="logout()">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="back-link">
+            <a href="manage-reports.html">← Back to Reports</a>
+        </div>
+
+        <div class="report-header">
+            <div>
+                <span class="report-id">Report #KZ001</span>
+                <span style="margin-left: 15px; color: #666;">Submitted on Feb 14, 2024</span>
+            </div>
+            <span class="status-badge status-pending" id="statusBadge">⏳ Pending</span>
+        </div>
+
+        <div class="report-grid">
+            <!-- Left Column - Report Details -->
+            <div class="card">
+                <h2>📋 Report Information</h2>
+                
+                <div class="info-row">
+                    <span class="info-label">Location:</span>
+                    <span class="info-value">Mavoor Road Junction, Kozhikode</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Waste Type:</span>
+                    <span class="info-value">Plastic Waste (Mixed)</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Severity:</span>
+                    <span class="info-value">
+                        <span style="color: #d32f2f; font-weight: bold;">🔴 High</span>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Description:</span>
+                    <span class="info-value">Large pile of plastic bottles and bags dumped near the junction. Approximately 50kg of waste.</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Landmark:</span>
+                    <span class="info-value">Near Mavoor Road Bus Stop</span>
+                </div>
+
+                <h2 style="margin-top: 30px;">📸 Photos</h2>
+                <div class="photo-grid">
+                    <div class="report-photo" onclick="viewPhoto(1)">
+                        <img src="https://via.placeholder.com/150x150/00695c/ffffff?text=Photo+1" alt="Report photo">
+                    </div>
+                    <div class="report-photo" onclick="viewPhoto(2)">
+                        <img src="https://via.placeholder.com/150x150/00695c/ffffff?text=Photo+2" alt="Report photo">
+                    </div>
+                    <div class="report-photo" onclick="viewPhoto(3)">
+                        <img src="https://via.placeholder.com/150x150/00695c/ffffff?text=Photo+3" alt="Report photo">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Citizen & Assignment -->
+            <div class="card">
+                <h2>👤 Citizen Information</h2>
+                
+                <div class="info-row">
+                    <span class="info-label">Name:</span>
+                    <span class="info-value">Rahul K.</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Phone:</span>
+                    <span class="info-value">+91 98765 43210</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Email:</span>
+                    <span class="info-value">rahul.k@email.com</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Reported on:</span>
+                    <span class="info-value">Feb 14, 2024 10:30 AM</span>
+                </div>
+
+                <h2 style="margin-top: 30px;">👮 Assignment</h2>
+                
+                <div class="info-row">
+                    <span class="info-label">Current Status:</span>
+                    <span class="info-value">
+                        <select id="statusSelect" class="officer-select" onchange="updateStatus()">
+                            <option value="pending" selected>⏳ Pending</option>
+                            <option value="progress">🔄 In Progress</option>
+                            <option value="resolved">✅ Resolved</option>
+                        </select>
+                    </span>
+                </div>
+
+                <div class="info-row">
+                    <span class="info-label">Assign Officer:</span>
+                    <span class="info-value">
+                        <select id="officerSelect" class="officer-select">
+                            <option value="">Select Officer</option>
+                            <option value="Anoop">Officer Anoop (Mavoor Road)</option>
+                            <option value="Ramesh">Officer Ramesh (Beypore)</option>
+                            <option value="Latha">Officer Latha (Kallai)</option>
+                            <option value="Suresh">Officer Suresh (Nadakkavu)</option>
+                        </select>
+                    </span>
+                </div>
+
+                <div class="info-row">
+                    <span class="info-label">Add Comment:</span>
+                    <span class="info-value">
+                        <textarea class="comment-box" placeholder="Add internal notes..."></textarea>
+                    </span>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn-primary" onclick="saveChanges()">Save Changes</button>
+                    <button class="btn-secondary" onclick="contactCitizen()">Contact Citizen</button>
+                    <button class="btn-danger" onclick="deleteReport()">Delete</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline Section -->
+        <div class="card">
+            <h2>⏱️ Report Timeline</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-date">10:30 AM</div>
+                    <div class="timeline-content">
+                        <h4>Report Submitted</h4>
+                        <p>Citizen reported plastic waste at Mavoor Road Junction</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">11:15 AM</div>
+                    <div class="timeline-content">
+                        <h4>Photos Verified</h4>
+                        <p>Admin verified the photos and confirmed report</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">11:30 AM</div>
+                    <div class="timeline-content">
+                        <h4>Pending Assignment</h4>
+                        <p>Waiting for officer assignment</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        if (localStorage.getItem('adminLoggedIn') !== 'true') {
+            window.location.href = 'admin-login.html';
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('adminLoggedIn');
+                window.location.href = 'admin-login.html';
+            }
+        }
+
+        function updateStatus() {
+            let status = document.getElementById('statusSelect').value;
+            let badge = document.getElementById('statusBadge');
+            
+            if (status === 'pending') {
+                badge.className = 'status-badge status-pending';
+                badge.textContent = '⏳ Pending';
+            } else if (status === 'progress') {
+                badge.className = 'status-badge status-progress';
+                badge.textContent = '🔄 In Progress';
+            } else {
+                badge.className = 'status-badge status-resolved';
+                badge.textContent = '✅ Resolved';
+            }
+        }
+
+        function saveChanges() {
+            alert('Changes saved successfully!');
+        }
+
+        function contactCitizen() {
+            alert('Initiating call to citizen...');
+        }
+
+        function deleteReport() {
+            if (confirm('Are you sure you want to delete this report?')) {
+                alert('Report deleted successfully');
+                window.location.href = 'manage-reports.html';
+            }
+        }
+
+        function viewPhoto(id) {
+            alert(`Viewing photo ${id}`);
+        }
+    </script>
+</body>
+</html>
